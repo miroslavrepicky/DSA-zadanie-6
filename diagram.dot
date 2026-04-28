@@ -1,0 +1,26 @@
+digraph BDD {
+    graph [rankdir=TB, fontname="Helvetica", splines=true];
+    node  [fontname="Helvetica", fontsize=12];
+    edge  [fontname="Helvetica", fontsize=10];
+
+    { rank=same; n0; }
+    { rank=same; n1; n2; }
+    { rank=same; n4; }
+    { rank=same; n3; n5; }
+
+    n0 [label="A", shape=doublecircle, style=filled, fillcolor="#d0e8ff"];
+    n1 [label="B", shape=circle, style=filled, fillcolor="#d0e8ff"];
+    n2 [label="B", shape=circle, style=filled, fillcolor="#d0e8ff"];
+    n3 [label="1", shape=square, style=filled, fillcolor="#90ee90", width=0.4, height=0.4];
+    n4 [label="C", shape=circle, style=filled, fillcolor="#d0e8ff"];
+    n5 [label="0", shape=square, style=filled, fillcolor="#ff9999", width=0.4, height=0.4];
+
+    n0 -> n1 [label="1", style=solid];
+    n0 -> n2 [label="0", style=dashed];
+    n1 -> n3 [label="1", style=solid];
+    n1 -> n4 [label="0", style=dashed];
+    n2 -> n4 [label="1", style=solid];
+    n2 -> n5 [label="0", style=dashed];
+    n4 -> n3 [label="1", style=solid];
+    n4 -> n5 [label="0", style=dashed];
+}
