@@ -180,14 +180,14 @@ int eval_expression(const char *expr, const char *varOrder, const char *vals)
     return 0;
 }
 
-/* ── Zjednodušenie výrazu po dosadení jednej premennej ──────────── *
+/* -- Zjednodušenie výrazu po dosadení jednej premennej ------------ *
  * Algoritmus:
  *  1. Pre každý term: dosad var=val, vyhodnoť literály s hodnotou.
  *     – ak term = 0 -> vypusti ho
  *     – ak term = 1 (všetky literály splnené) -> celý výraz = "1"
  *     – inak -> ponechaj zostatok literálov
  *  2. Ak žiadny term neostal -> výsledok = "0"
- * ────────────────────────────────────────────────────────────────── */
+ * ------------------------------------------------------------------ */
 static char *simplify(const char *expr, char var, int val)
 {
     /* Výstupný buffer – nemôže byť dlhší ako vstup */
@@ -239,7 +239,7 @@ static char *simplify(const char *expr, char var, int val)
 
         term_buf[tpos] = '\0';
 
-        /* Ak term_buf je prázdny, term je čistá 1 -> celý výraz = 1 */
+        /* Ak term_buf je prázdny (žiadny literál nezostal nevyhodnotený), term je čistá 1 -> celý výraz = 1 */
         if (tpos == 0) {
             free(out);
             out = malloc(2);
@@ -288,11 +288,11 @@ static BDDNode *build(BDD *bdd, const char *expr,
     free(expr_high);
     free(expr_low);
 
-    /* ── Redukcia pravidlo 1: Elimination ──────────────────────────
+    /* -- Redukcia pravidlo 1: Elimination --------------------------
        Ak high == low, uzol nič nerozhoduje -> vráť priamo child.    */
     if (high == low) return high;
 
-    /* ── Redukcia pravidlo 2: Merging (unique table) ───────────────
+    /* -- Redukcia pravidlo 2: Merging (unique table) ---------------
        Ak existuje uzol s rovnakým (var, high, low), zdieľaj ho.    */
     BDDNode *node = ut_get_or_insert(bdd->ut, var, high, low,
                                      &bdd->numNodes);
