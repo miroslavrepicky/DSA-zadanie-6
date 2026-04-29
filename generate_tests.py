@@ -16,7 +16,7 @@ Formát:
   ]
 }
 
-Pre každý počet premenných n ∈ {3, 4, 5, 6, 7} generujeme 100 unikátnych funkcií.
+Pre každý počet premenných n ∈ {3, 6, 9, 12, 14} generujeme 100 unikátnych funkcií.
 """
 
 import json
@@ -28,7 +28,7 @@ SEED = 42
 random.seed(SEED)
 
 # Počty premenných, ktoré chceme otestovať
-VAR_COUNTS = [11, 12, 13, 14, 15]
+VAR_COUNTS = [3, 6, 9, 12, 14]
 FUNCS_PER_SIZE = 100
 
 VARNAMES = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"

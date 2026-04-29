@@ -39,7 +39,7 @@
 /* Maximálne dĺžky reťazcov */
 #define MAX_EXPR    4096
 #define MAX_ORDER   64
-#define MAX_TT      (1 << 20)   /* 2^20 = 1048576 kombinácií pre n=20 */
+#define MAX_TT      (1 << 15)   /* 2^20 = 1048576 kombinácií pre n=20 */
 #define MAX_TESTS   600         /* 5 veľkostí × 100 + rezerva       */
 
 typedef struct {
