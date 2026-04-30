@@ -335,12 +335,14 @@ BDD *BDD_create(const char *expression, const char *variable_order)
 
 BDD *BDD_create_with_best_order(const char *expression)
 {
-    /* Zistíme premenné z výrazu */
     char vars[64];
     int  nv = 0;
+    int  freq[26] = {0};
+
+    // Zisti premenné a ich frekvencie
     for (const char *p = expression; *p; p++) {
         if (isupper((unsigned char)*p)) {
-            /* pridaj ak ešte nie je */
+            freq[*p - 'A']++;
             int found = 0;
             for (int i = 0; i < nv; i++)
                 if (vars[i] == *p) { found = 1; break; }
@@ -349,24 +351,65 @@ BDD *BDD_create_with_best_order(const char *expression)
     }
     vars[nv] = '\0';
 
-    /* Skúšame cyklické rotácie: ABC, BCA, CAB, ...  (≥ N poradí) */
-    BDD *best = NULL;
+    // 1. Frequency sort (zostupne)
+    for (int i = 0; i < nv-1; i++)
+        for (int j = i+1; j < nv; j++)
+            if (freq[vars[j]-'A'] > freq[vars[i]-'A']) {
+                char tmp = vars[i]; vars[i] = vars[j]; vars[j] = tmp;
+            }
+
+    // 2. Sifting – pre každú pozíciu skús posunúť premennú
+    //    doľava a doprava, ponechaj najlepšiu pozíciu
     char order[64];
+    memcpy(order, vars, nv+1);
+    int max_iters = strlen(vars) * 2;
+    int iters = 0;
+    BDD *best = BDD_create(expression, order);
 
-    for (int rot = 0; rot < nv; rot++) {
-        /* Vytvor poradie = rotácia o rot */
-        for (int i = 0; i < nv; i++)
-            order[i] = vars[(i + rot) % nv];
-        order[nv] = '\0';
+    int improved = 1;
+    while (improved && iters < max_iters) {
+        improved = 0;
+        for (int i = 0; i < nv; i++) {
+            // Skús všetky pozície pre premennú na pozícii i
+            int best_pos = i;
 
-        BDD *candidate = BDD_create(expression, order);
-        if (!best || candidate->numNodes < best->numNodes) {
-            BDD_free(best);
-            best = candidate;
-        } else {
-            BDD_free(candidate);
+            // Pohyb doľava
+            for (int j = i-1; j >= 0; j--) {
+                char tmp = order[j]; order[j] = order[j+1]; order[j+1] = tmp;
+                BDD *candidate = BDD_create(expression, order);
+                iters++;
+                if (candidate->numNodes < best->numNodes) {
+                    BDD_free(best);
+                    best = candidate;
+                    best_pos = j;
+                    improved = 1;
+                } else {
+                    BDD_free(candidate);
+                }
+            }
+
+            // Vráť premennú späť na i, potom pohyb doprava
+            // (reset poradia na pôvodné pred pravým smerorm)
+            memcpy(order, best->varOrder, nv+1);  // vždy vychádzame z najlepšieho
+            for (int j = i+1; j < nv; j++) {
+                char tmp = order[j]; order[j] = order[j-1]; order[j-1] = tmp;
+                BDD *candidate = BDD_create(expression, order);
+                if (candidate->numNodes < best->numNodes) {
+                    BDD_free(best);
+                    best = candidate;
+                    best_pos = j;
+                    improved = 1;
+                } else {
+                    BDD_free(candidate);
+                }
+            }
+
+            // Nastav order na najlepšie nájdené poradie pre ďalšiu iteráciu
+            memcpy(order, best->varOrder, nv+1);
+            (void)best_pos;
         }
     }
+
     return best;
 }
 

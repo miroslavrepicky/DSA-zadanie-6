@@ -38,14 +38,12 @@ static double get_time_ms(void) {
 
 /* -- Nastavenia ----------------------------------------------------- */
 #define SEED          42
-#define FUNCS_PER_N   10
+#define FUNCS_PER_N   200
 #define MAX_VARS      20        /* maximalne podporovane n */
 
-// static const int VAR_COUNTS[] = {3, 5, 7, 9, 11, 13, 15, 19};
-// static const int N_GROUPS     = 8;
+static const int VAR_COUNTS[] = {3, 5, 7, 9, 11, 13, 15};
+static const int N_GROUPS     = 7;
 
-static const int VAR_COUNTS[] = {5};
-static const int N_GROUPS     = 1;
 
 /* -- Generovanie nahodneho DNF vyrazu ------------------------------ */
 
