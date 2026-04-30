@@ -103,23 +103,20 @@ static int verify_bdd(BDD *bdd, const char *expr,
 {
     int errors  = 0;
     int total   = 1 << n;
-    int bdd_n   = bdd->numVariables;
     char canonical[MAX_VARS + 1];
     char bdd_inputs[MAX_VARS + 1];
     canonical[n] = '\0';
-    bdd_inputs[bdd_n] = '\0';
+    bdd_inputs[n] = '\0';
 
     for (int mask = 0; mask < total; mask++) {
         /* canonical vstupy v poradí var_order = "ABCD..." */
         for (int i = 0; i < n; i++)
             canonical[i] = ((mask >> (n - 1 - i)) & 1) ? '1' : '0';
 
-        /* premapuj iba premenné ktoré BDD pozná (bdd_n <= n) */
-        for (int j = 0; j < bdd_n; j++) {
+        /* premapuj premenné */
+        for (int j = 0; j < n; j++) {
             char var = bdd->varOrder[j];
-            const char *pos = strchr(var_order, var);
-            int src = (int)(pos - var_order);
-            bdd_inputs[j] = canonical[src];
+            bdd_inputs[j] = canonical[var - 'A'];
         }
 
         char expected = eval_expression(expr, var_order, canonical) ? '1' : '0';
