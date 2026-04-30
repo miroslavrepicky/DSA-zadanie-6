@@ -36,7 +36,7 @@ static double get_time_ms(void) {
 
 #include "bdd.h"
 
-/* ── Nastavenia ───────────────────────────────────────────────────── */
+/* -- Nastavenia ----------------------------------------------------- */
 #define SEED          42
 #define FUNCS_PER_N   100
 #define MAX_VARS      20        /* maximalne podporovane n */
@@ -44,22 +44,28 @@ static double get_time_ms(void) {
 static const int VAR_COUNTS[] = {3, 5, 7, 9, 11, 13, 15};
 static const int N_GROUPS     = 7;
 
-/* ── Generovanie nahodneho DNF vyrazu ────────────────────────────── */
+/* -- Generovanie nahodneho DNF vyrazu ------------------------------ */
 
 /*
  * Zapise nahodny DNF vyraz do `buf` pre `n` premennych (A, B, C, ...).
  * Format: "A.!B.C+!A.B" atd.
+ *
+ * Pocet termov: n/2 az 2*n (zaistuje dostatocne pokrytie premennych).
+ * Kazda premenna sa do kazdeho termu zaradi s pravdepodobnostou 50%.
+ * Zaruci sa ze vsetky n premennych sa vyskytnu aspon raz v celom vyraze.
  */
 static void random_dnf(int n, char *buf, int bufsize)
 {
-    int max_terms = n > 2 ? n : 2;
-    int num_terms = 1 + rand() % max_terms;
-
+    int min_terms = n / 2 < 1 ? 1 : n / 2;
+    int max_terms = 2 * n;
+    int num_terms = min_terms + rand() % (max_terms - min_terms + 1);
+ 
+    int used[MAX_VARS] = {0};   /* sledujeme ktore premenne su uz pouzite */
     int pos = 0;
+ 
     for (int t = 0; t < num_terms; t++) {
         if (t > 0) buf[pos++] = '+';
-
-        /* nahodna podmnozina premennych pre tento term */
+ 
         int first_lit = 1;
         for (int i = 0; i < n; i++) {
             if (rand() % 2 == 0) continue;   /* premennu vynechame */
@@ -67,18 +73,30 @@ static void random_dnf(int n, char *buf, int bufsize)
             first_lit = 0;
             if (rand() % 2 == 0) buf[pos++] = '!';
             buf[pos++] = 'A' + i;
+            used[i] = 1;
         }
         /* ak sme nevybrali ziaden literal, pridame aspon jeden */
         if (first_lit) {
             int i = rand() % n;
             if (rand() % 2 == 0) buf[pos++] = '!';
             buf[pos++] = 'A' + i;
+            used[i] = 1;
         }
     }
+ 
+    /* Zaruci ze kazda premenna sa vyskytne aspon raz v celom vyraze */
+    for (int i = 0; i < n; i++) {
+        if (!used[i]) {
+            buf[pos++] = '+';
+            if (rand() % 2 == 0) buf[pos++] = '!';
+            buf[pos++] = 'A' + i;
+        }
+    }
+ 
     buf[pos] = '\0';
 }
 
-/* ── Overenie BDD pre vsetky vstupy ──────────────────────────────── */
+/* -- Overenie BDD pre vsetky vstupy -------------------------------- */
 
 static int verify_bdd(BDD *bdd, const char *expr,
                       const char *var_order, int n)
@@ -117,7 +135,7 @@ static int verify_bdd(BDD *bdd, const char *expr,
     return errors;
 }
 
-/* ── Statistika pre jednu skupinu premennych ─────────────────────── */
+/* -- Statistika pre jednu skupinu premennych ----------------------- */
 typedef struct {
     int    n, total, passed, passed_best;
     double avg_nodes_create, avg_nodes_best;
@@ -128,7 +146,7 @@ typedef struct {
     double time_best_ms;     /* celkovy cas BDD_best_order          */
 } GroupStats;
 
-/* ── Hlavna funkcia ──────────────────────────────────────────────── */
+/* -- Hlavna funkcia ------------------------------------------------ */
 int main(void)
 {
     srand(SEED);
@@ -147,7 +165,7 @@ int main(void)
 
     int grand_errors = 0;
 
-    char expr[512];
+    char expr[4096];
     char var_order[MAX_VARS + 1];
 
     for (int g = 0; g < N_GROUPS; g++) {
@@ -166,7 +184,7 @@ int main(void)
             random_dnf(n, expr, sizeof(expr));
             gs->total++;
 
-            /* ── BDD_create ── */
+            /* -- BDD_create -- */
             double t0, t1;
             t0 = get_time_ms();
             BDD *bdd = BDD_create(expr, var_order);
@@ -181,7 +199,7 @@ int main(void)
                    printf("[n=%d #%d] BDD_create CHYBY=%d expr=%s\n",
                           n, gs->total, err_c, expr); }
 
-            /* ── BDD_create_with_best_order ── */
+            /* -- BDD_create_with_best_order -- */
             t0 = get_time_ms();
             BDD *bdd_best = BDD_create_with_best_order(expr);
             t1 = get_time_ms();
@@ -195,7 +213,7 @@ int main(void)
                    printf("[n=%d #%d] BDD_best CHYBY=%d expr=%s\n",
                           n, gs->total, err_b, expr); }
 
-            /* ── Statistiky ── */
+            /* -- Statistiky -- */
             gs->avg_nodes_create += nodes_c;
             gs->avg_nodes_best   += nodes_b;
 
@@ -217,7 +235,7 @@ int main(void)
         }
     }
 
-    /* ── Výpis výsledkov ──────────────────────────────────────────── */
+    /* -- Výpis výsledkov -------------------------------------------- */
     printf("\n");
     printf("|=======================================================================================================|\n");
     printf("|  n |Testov|Sprav |Spr.B |Uzly avg  |UzlyB avg |Reduk.%%   |ExtraRed.%%|Best<Crea |t_crt ms  |t_best ms |\n");
