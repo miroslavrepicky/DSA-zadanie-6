@@ -54,7 +54,7 @@ static const int N_GROUPS     = 7;
  * Kazda premenna sa do kazdeho termu zaradi s pravdepodobnostou 50%.
  * Zaruci sa ze vsetky n premennych sa vyskytnu aspon raz v celom vyraze.
  */
-static void random_dnf(int n, char *buf, int bufsize)
+static void random_dnf(int n, char *buf)
 {
     int min_terms = n / 2 < 1 ? 1 : n / 2;
     int max_terms = 2 * n;
@@ -181,7 +181,7 @@ int main(void)
         printf("Generujem testy pre n=%d...\n", n);
 
         while (gs->total < FUNCS_PER_N) {
-            random_dnf(n, expr, sizeof(expr));
+            random_dnf(n, expr);
             gs->total++;
 
             /* -- BDD_create -- */
@@ -200,18 +200,21 @@ int main(void)
                           n, gs->total, err_c, expr); }
 
             /* -- BDD_create_with_best_order -- */
+            char found_order[MAX_VARS + 1];
             t0 = get_time_ms();
-            BDD *bdd_best = BDD_create_with_best_order(expr);
+            BDD *bdd_best = BDD_create_with_best_order(expr, found_order);
             t1 = get_time_ms();
             gs->time_best_ms += t1 - t0;
-            int nodes_b   = bdd_best->numNodes;
-            int err_b     = verify_bdd(bdd_best, expr, var_order, n);
+            int nodes_b = bdd_best->numNodes;
+            int err_b   = verify_bdd(bdd_best, expr, var_order, n);
             BDD_free(bdd_best);
-
+ 
             if (err_b == 0) gs->passed_best++;
-            else { grand_errors += err_b;
-                   printf("[n=%d #%d] BDD_best CHYBY=%d expr=%s\n",
-                          n, gs->total, err_b, expr); }
+            else {
+                grand_errors += err_b;
+                printf("[n=%d #%d] BDD_best CHYBY=%d poradie=%s expr=%s\n",
+                       n, gs->total, err_b, found_order, expr);
+            }
 
             /* -- Statistiky -- */
             gs->avg_nodes_create += nodes_c;

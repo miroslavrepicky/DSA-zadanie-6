@@ -333,7 +333,7 @@ BDD *BDD_create(const char *expression, const char *variable_order)
     return bdd;
 }
 
-BDD *BDD_create_with_best_order(const char *expression)
+BDD *BDD_create_with_best_order(const char *expression, char *best_order_out)
 {
     /* Zistíme premenné z výrazu */
     char vars[64];
@@ -350,23 +350,29 @@ BDD *BDD_create_with_best_order(const char *expression)
     vars[nv] = '\0';
 
     /* Skúšame cyklické rotácie: ABC, BCA, CAB, ...  (≥ N poradí) */
-    BDD *best = NULL;
-    char order[64];
-
+    BDD  *best       = NULL;
+    char  best_order[64];
+    char  order[64];
+ 
     for (int rot = 0; rot < nv; rot++) {
-        /* Vytvor poradie = rotácia o rot */
         for (int i = 0; i < nv; i++)
             order[i] = vars[(i + rot) % nv];
         order[nv] = '\0';
-
+ 
         BDD *candidate = BDD_create(expression, order);
         if (!best || candidate->numNodes < best->numNodes) {
             BDD_free(best);
             best = candidate;
+            memcpy(best_order, order, nv + 1);
         } else {
             BDD_free(candidate);
         }
     }
+ 
+    /* Zapíšeme nájdené poradie do výstupného parametra (ak nie je NULL). */
+    if (best_order_out)
+        memcpy(best_order_out, best_order, nv + 1);
+ 
     return best;
 }
 
