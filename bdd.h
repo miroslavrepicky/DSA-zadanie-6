@@ -50,7 +50,7 @@ typedef struct BDD {
    Verejné API
    ────────────────────────────────────────── */
 BDD  *BDD_create(const char *expression, const char *variable_order);
-BDD  *BDD_create_with_best_order(const char *expression, char *best_order_out);
+BDD  *BDD_create_with_best_order(const char *expression);
 char  BDD_use(BDD *bdd, const char *inputs);
 void  BDD_free(BDD *bdd);
 
