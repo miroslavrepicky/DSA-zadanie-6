@@ -2,7 +2,7 @@
  * test_bdd.c
  *
  * Testovaci program pre BDD implementaciu.
- * Generuje nahodne DNF funkcie priamo v C, overi spravnost BDD
+ * Generuje nahodne DNF funkcie, overi spravnost BDD
  * porovnanim BDD_use() s eval_expression() pre vsetky vstupy.
  *
  * Kompilacia:
@@ -151,7 +151,7 @@ int main(void)
     srand(SEED);
 
     printf("|==============================================|\n");
-    printf("|           BDD tester (priamo v C)           |\n");
+    printf("|           BDD tester                         |\n");
     printf("|==============================================|\n\n");
 
     GroupStats stats[N_GROUPS];
@@ -243,18 +243,18 @@ int main(void)
     /* -- Výpis výsledkov -------------------------------------------- */
     printf("\n");
     printf("|=======================================================================================================|\n");
-    printf("|  n |Testov|Sprav |Spr.B |Uzly avg  |UzlyB avg |Reduk.%%   |ExtraRed.%%|Best<Crea |t_crt ms  |t_best ms |\n");
-    printf("|====|======|======|======|==========|==========|==========|==========|==========|==========|==========|\n");
+    printf("|  n |Testov|Sprav |Spr.B |Uzly avg  |UzlyB avg |Reduk.%%   |ExtraRed.%%|Best<Crea |t_crt ms  |t_best ms  |\n");
+    printf("|====|======|======|======|==========|==========|==========|==========|==========|==========|=========== |\n");
     for (int g = 0; g < N_GROUPS; g++) {
         GroupStats *gs = &stats[g];
-        printf("| %2d | %4d | %4d | %4d | %8.2f | %8.2f | %7.2f%% | %7.2f%% | %4d/%4d | %8.2f | %8.2f |\n",
+        printf("| %2d | %4d | %4d | %4d | %8.2f | %8.2f | %7.2f%% | %7.2f%% | %4d/%3d | %8.2f | %8.2f |\n",
                gs->n, gs->total, gs->passed, gs->passed_best,
                gs->avg_nodes_create, gs->avg_nodes_best,
                gs->avg_reduction_pct, gs->avg_extra_reduction,
                gs->best_beats_create, gs->total,
                gs->time_create_ms, gs->time_best_ms);
     }
-    printf("|====|======|======|======|==========|==========|==========|==========|==========|==========|==========|\n");
+    printf("|====|======|======|======|==========|==========|==========|==========|==========|==========|=========== |\n");
 
     printf("\n-- Detailna statistika extra redukcie (best vs. create) --\n");
     for (int g = 0; g < N_GROUPS; g++) {
