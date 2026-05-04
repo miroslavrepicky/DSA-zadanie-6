@@ -12,6 +12,7 @@
  *   ./test_bdd
  */
 
+//#include "bdd_viz.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -38,7 +39,7 @@ static double get_time_ms(void) {
 
 /* -- Nastavenia ----------------------------------------------------- */
 #define SEED          42
-#define FUNCS_PER_N   200
+#define FUNCS_PER_N   100
 #define MAX_VARS      20        /* maximalne podporovane n */
 
 static const int VAR_COUNTS[] = {3, 5, 7, 9, 11, 13, 15};
@@ -186,6 +187,9 @@ int main(void)
             double t0, t1;
             t0 = get_time_ms();
             BDD *bdd = BDD_create(expr, var_order);
+            // char filename[256];
+            // snprintf(filename, sizeof(filename), "bdd_%s.html", expr);
+            // BDD_export_html(bdd, filename);
 
             t1 = get_time_ms();
             gs->time_create_ms += t1 - t0;
@@ -200,6 +204,9 @@ int main(void)
             /* -- BDD_create_with_best_order -- */
             t0 = get_time_ms();
             BDD *bdd_best = BDD_create_with_best_order(expr);
+            // char filename2[256];
+            // snprintf(filename2, sizeof(filename2), "bdd_best_%s.html", expr);
+            // BDD_export_html(bdd_best, filename2);
             t1 = get_time_ms();
             gs->time_best_ms += t1 - t0;
             int nodes_b   = bdd_best->numNodes;

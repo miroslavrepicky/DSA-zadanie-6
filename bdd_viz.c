@@ -24,15 +24,11 @@ static void ns_init(NodeSet *s) {
 static void ns_free(NodeSet *s) { free(s->data); }
 
 static int ns_contains(const NodeSet *s, const BDDNode *n) {
-    printf("DNU NS CONTAINS\n");
     for (int i = 0; i < s->size; i++){
-        printf("DNU NS IF\n");
         if (s->data[i] == n){
-            printf("vraciam1\n");
             return 1;
         } 
     }
-    printf("vraciam0");
     return 0;
 }
 

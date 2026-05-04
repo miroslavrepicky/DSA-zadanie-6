@@ -362,7 +362,7 @@ BDD *BDD_create_with_best_order(const char *expression)
     //    doľava a doprava, ponechaj najlepšiu pozíciu
     char order[64];
     memcpy(order, vars, nv+1);
-    int max_iters = strlen(vars) * 2;
+    int max_iters = strlen(vars) * strlen(vars);
     int iters = 0;
     BDD *best = BDD_create(expression, order);
 
@@ -409,7 +409,6 @@ BDD *BDD_create_with_best_order(const char *expression)
             (void)best_pos;
         }
     }
-
     return best;
 }
 
