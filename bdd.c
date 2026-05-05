@@ -14,6 +14,14 @@ static long long ut_hash(UniqueTable *ut, char variable,
                          BDDNode *high, BDDNode *low)
 {
     /* Kombinujeme tri hodnoty do jedného hashu (FNV-inšpirované).
+    h  = 65 <- 'A'
+    h  = 65 * 1000003 ^ 0x1000
+    = 65000195 ^ 4096
+    = 65004291
+    h  = 65004291 * 1000003 ^ 0x2000
+    = veľké číslo ^ 8192
+    = nejaký hash
+    index = ((hash % 256) + 256) % 256  <- výsledný index 0–255
        Pointery pretypujeme na uintptr_t aby sme mali číslo. */
     long long h = (unsigned char)variable;
     h = h * 1000003LL ^ (long long)(size_t)high;
